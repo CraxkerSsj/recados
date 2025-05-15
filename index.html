@@ -112,7 +112,6 @@
     <input type="email" id="email" placeholder="Email" required>
     <input type="password" id="password" placeholder="Senha" required>
     <button id="loginBtn">Entrar</button>
-    <button id="signupBtn">Cadastrar</button>
   </div>
 
   <div id="auth-status"></div>
@@ -133,7 +132,7 @@
     import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js";
     import {
       getAuth, onAuthStateChanged, signInWithEmailAndPassword,
-      createUserWithEmailAndPassword, signOut
+      signOut
     } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
 
     const firebaseConfig = {
@@ -155,7 +154,6 @@
     const email = document.getElementById('email');
     const password = document.getElementById('password');
     const loginBtn = document.getElementById('loginBtn');
-    const signupBtn = document.getElementById('signupBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const authStatus = document.getElementById('auth-status');
 
@@ -164,11 +162,6 @@
     loginBtn.onclick = () => {
       signInWithEmailAndPassword(auth, email.value, password.value)
         .catch(e => alert("Erro ao entrar: " + e.message));
-    };
-
-    signupBtn.onclick = () => {
-      createUserWithEmailAndPassword(auth, email.value, password.value)
-        .catch(e => alert("Erro ao cadastrar: " + e.message));
     };
 
     logoutBtn.onclick = () => signOut(auth);
