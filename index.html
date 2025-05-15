@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mensagens para Meu Amor 💌</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #ffe6f0;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      margin-top: 40px;
+      color: #d6336c;
+    }
+
+    form {
+      margin-top: 20px;
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
+    }
+
+    input, textarea {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background: #d6336c;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    .messages {
+      margin-top: 30px;
+      width: 90%;
+      max-width: 600px;
+    }
+
+    .message {
+      background: #fff0f5;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .message strong {
+      color: #d6336c;
+    }
+  </style>
+</head>
+<body>
+  <h1>Deixe um recadinho para mim 💗</h1>
+
+  <form id="guestbook-form">
+    <input type="text" id="name" placeholder="Seu nome" required />
+    <textarea id="message" placeholder="Escreva sua mensagem aqui..." rows="4" required></textarea>
+    <button type="submit">Enviar mensagem 💌</button>
+  </form>
+
+  <div class="messages" id="messages">
+    <!-- Mensagens aparecerão aqui -->
+  </div>
+
+  <script>
+    const form = document.getElementById('guestbook-form');
+    const messagesContainer = document.getElementById('messages');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const message = document.getElementById('message').value.trim();
+
+      if (name && message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+        messageDiv.innerHTML = `<strong>${name}</strong> escreveu:<br>${message}`;
+
+        messagesContainer.prepend(messageDiv);
+
+        form.reset();
+      }
+    });
+  </script>
+</body>
+</html>
