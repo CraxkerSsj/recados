@@ -3,34 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Recadinhos para Meu Amor 💖</title>
+  <title>Recadinhos 💌</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
       padding: 0;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 100vh;
       transition: background 0.3s, color 0.3s;
     }
+    body.light { background: #fff0f5; color: #333; }
+    body.dark { background: #1e1e1e; color: #fff; }
 
-    body.light {
-      background: #fff0f5;
-      color: #333;
-    }
-
-    body.dark {
-      background: #1e1e1e;
-      color: #fff;
-    }
-
-    h1 {
-      margin-top: 40px;
-      text-align: center;
-      font-size: 2em;
-    }
+    h1 { margin-top: 40px; }
 
     .theme-toggle {
       position: absolute;
@@ -42,7 +30,7 @@
       border: none;
     }
 
-    form {
+    .form-container, #guestbook-form, #auth-forms {
       margin-top: 20px;
       background: white;
       padding: 20px;
@@ -53,15 +41,13 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      text-align: center;
     }
 
-    body.dark form {
+    body.dark .form-container, body.dark #guestbook-form, body.dark #auth-forms {
       background: #2c2c2c;
     }
 
     input, textarea {
-      width: 100%;
       padding: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
@@ -76,10 +62,6 @@
       border-radius: 8px;
       cursor: pointer;
       font-size: 16px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
     }
 
     .messages {
@@ -101,9 +83,7 @@
       background: #333;
     }
 
-    .message strong {
-      color: #d6336c;
-    }
+    .message strong { color: #d6336c; }
 
     footer {
       margin-top: auto;
@@ -111,26 +91,50 @@
       text-align: center;
       font-size: 14px;
     }
+
+    #logoutBtn {
+      margin-top: 10px;
+      background: #444;
+    }
+
+    #auth-status {
+      margin-top: 20px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body class="light">
   <button class="theme-toggle" id="toggleTheme">🌙</button>
 
-  <h1>💌 Deixe um recadinho para mim 💖</h1>
+  <h1>💌 Recadinhos para você</h1>
 
-  <form id="guestbook-form">
+  <div id="auth-forms">
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Senha" required>
+    <button id="loginBtn">Entrar</button>
+    <button id="signupBtn">Cadastrar</button>
+  </div>
+
+  <div id="auth-status"></div>
+  <button id="logoutBtn" style="display:none;">Sair</button>
+
+  <form id="guestbook-form" style="display:none;">
     <input type="text" id="name" placeholder="Seu nome" required />
-    <textarea id="message" placeholder="Escreva sua mensagem aqui..." rows="4" required></textarea>
-    <button type="submit">💬 Enviar mensagem</button>
+    <textarea id="message" placeholder="Escreva sua mensagem..." rows="4" required></textarea>
+    <button type="submit">Enviar 💬</button>
   </form>
 
   <div class="messages" id="messages"></div>
-  <footer>Feito com ❤️ especialmente para você</footer>
+  <footer>Feito com ❤️ para você</footer>
 
-  <!-- Firebase (ES Modules) -->
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+    import {
+      getAuth, onAuthStateChanged, signInWithEmailAndPassword,
+      createUserWithEmailAndPassword, signOut
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD5pJl95z6Q1JHhKHTcTu7p7rDLX_CRtu8",
@@ -144,17 +148,54 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    const auth = getAuth(app);
 
     const form = document.getElementById('guestbook-form');
     const messagesContainer = document.getElementById('messages');
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const signupBtn = document.getElementById('signupBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const authStatus = document.getElementById('auth-status');
 
-    form.addEventListener('submit', function(e) {
+    let currentUser = null;
+
+    loginBtn.onclick = () => {
+      signInWithEmailAndPassword(auth, email.value, password.value)
+        .catch(e => alert("Erro ao entrar: " + e.message));
+    };
+
+    signupBtn.onclick = () => {
+      createUserWithEmailAndPassword(auth, email.value, password.value)
+        .catch(e => alert("Erro ao cadastrar: " + e.message));
+    };
+
+    logoutBtn.onclick = () => signOut(auth);
+
+    onAuthStateChanged(auth, user => {
+      currentUser = user;
+      if (user) {
+        form.style.display = "flex";
+        logoutBtn.style.display = "block";
+        document.getElementById('auth-forms').style.display = "none";
+        authStatus.textContent = "Logado como: " + user.email;
+      } else {
+        form.style.display = "none";
+        logoutBtn.style.display = "none";
+        document.getElementById('auth-forms').style.display = "flex";
+        authStatus.textContent = "";
+      }
+    });
+
+    form.addEventListener('submit', e => {
       e.preventDefault();
+      if (!currentUser) return alert("Você precisa estar logado.");
       const name = document.getElementById('name').value.trim();
       const message = document.getElementById('message').value.trim();
-
       if (name && message) {
         push(ref(db, 'messages'), {
+          uid: currentUser.uid,
           name,
           message,
           timestamp: Date.now()
@@ -163,7 +204,7 @@
       }
     });
 
-    onValue(ref(db, 'messages'), (snapshot) => {
+    onValue(ref(db, 'messages'), snapshot => {
       messagesContainer.innerHTML = '';
       const data = snapshot.val();
       const msgs = Object.values(data || {}).sort((a, b) => b.timestamp - a.timestamp);
@@ -175,13 +216,12 @@
       });
     });
 
-    // Tema claro/escuro
-    const toggleBtn = document.getElementById("toggleTheme");
-    toggleBtn.addEventListener("click", () => {
+    document.getElementById("toggleTheme").onclick = () => {
       document.body.classList.toggle("dark");
       document.body.classList.toggle("light");
-      toggleBtn.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
-    });
+      const isDark = document.body.classList.contains("dark");
+      document.getElementById("toggleTheme").textContent = isDark ? "☀️" : "🌙";
+    };
   </script>
 </body>
 </html>
