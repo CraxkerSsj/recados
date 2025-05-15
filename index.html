@@ -129,21 +129,22 @@
 
   <!-- Firebase -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js";
     import {
       getAuth, onAuthStateChanged, signInWithEmailAndPassword,
       createUserWithEmailAndPassword, signOut
-    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyAyzWt6QfNPbSHNQRHLAm8dksPiu6kwv58",
+      apiKey: "AIzaSyD8JRSv2DOoy9qY9rbhIYsZ02i3BqUt2CM",
       authDomain: "recados-us.firebaseapp.com",
       databaseURL: "https://recados-us-default-rtdb.firebaseio.com",
       projectId: "recados-us",
       storageBucket: "recados-us.firebasestorage.app",
       messagingSenderId: "126861126431",
-      appId: "1:126861126431:web:97ab4d8c41d860cd3e1e2a"
+      appId: "1:126861126431:web:133c224feadb03ec3e1e2a"
     };
 
     const app = initializeApp(firebaseConfig);
