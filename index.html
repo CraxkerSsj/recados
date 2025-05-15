@@ -3,23 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mensagens para Meu Amor 💌</title>
+  <title>Recadinhos para Meu Amor 💖</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #ffe6f0;
-      color: #333;
       margin: 0;
       padding: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.light {
+      background: #fff0f5;
+      color: #333;
+    }
+
+    body.dark {
+      background: #1e1e1e;
+      color: #fff;
     }
 
     h1 {
       margin-top: 40px;
-      color: #d6336c;
+      text-align: center;
+      font-size: 2em;
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      font-size: 20px;
+      background: transparent;
+      border: none;
     }
 
     form {
@@ -30,25 +50,36 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       width: 90%;
       max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: center;
+    }
+
+    body.dark form {
+      background: #2c2c2c;
     }
 
     input, textarea {
       width: 100%;
-      margin-bottom: 10px;
       padding: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
+      font-size: 16px;
     }
 
     button {
       background: #d6336c;
       color: white;
       border: none;
-      padding: 10px;
+      padding: 12px;
       border-radius: 8px;
       cursor: pointer;
-      width: 100%;
       font-size: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
     }
 
     .messages {
@@ -58,50 +89,98 @@
     }
 
     .message {
-      background: #fff0f5;
+      background: #fff;
       padding: 15px;
       border-radius: 12px;
       margin-bottom: 10px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+
+    body.dark .message {
+      background: #333;
     }
 
     .message strong {
       color: #d6336c;
     }
+
+    footer {
+      margin-top: auto;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
   </style>
 </head>
-<body>
-  <h1>Deixe um recadinho para mim 💗</h1>
+<body class="light">
+  <button class="theme-toggle" id="toggleTheme">🌙</button>
+
+  <h1>💌 Deixe um recadinho para mim 💖</h1>
 
   <form id="guestbook-form">
     <input type="text" id="name" placeholder="Seu nome" required />
     <textarea id="message" placeholder="Escreva sua mensagem aqui..." rows="4" required></textarea>
-    <button type="submit">Enviar mensagem 💌</button>
+    <button type="submit">💬 Enviar mensagem</button>
   </form>
 
-  <div class="messages" id="messages">
-    <!-- Mensagens aparecerão aqui -->
-  </div>
+  <div class="messages" id="messages"></div>
+  <footer>Feito com ❤️ especialmente para você</footer>
 
-  <script>
+  <!-- Firebase (ES Modules) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD5pJl95z6Q1JHhKHTcTu7p7rDLX_CRtu8",
+      authDomain: "recados-us.firebaseapp.com",
+      databaseURL: "https://recados-us-default-rtdb.firebaseio.com",
+      projectId: "recados-us",
+      storageBucket: "recados-us.firebasestorage.app",
+      messagingSenderId: "126861126431",
+      appId: "1:126861126431:web:97ab4d8c41d860cd3e1e2a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
     const form = document.getElementById('guestbook-form');
     const messagesContainer = document.getElementById('messages');
 
     form.addEventListener('submit', function(e) {
       e.preventDefault();
-
       const name = document.getElementById('name').value.trim();
       const message = document.getElementById('message').value.trim();
 
       if (name && message) {
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message');
-        messageDiv.innerHTML = `<strong>${name}</strong> escreveu:<br>${message}`;
-
-        messagesContainer.prepend(messageDiv);
-
+        push(ref(db, 'messages'), {
+          name,
+          message,
+          timestamp: Date.now()
+        });
         form.reset();
       }
+    });
+
+    onValue(ref(db, 'messages'), (snapshot) => {
+      messagesContainer.innerHTML = '';
+      const data = snapshot.val();
+      const msgs = Object.values(data || {}).sort((a, b) => b.timestamp - a.timestamp);
+      msgs.forEach(msg => {
+        const div = document.createElement('div');
+        div.classList.add('message');
+        div.innerHTML = `<strong>${msg.name}</strong> escreveu:<br><p>${msg.message}</p>`;
+        messagesContainer.appendChild(div);
+      });
+    });
+
+    // Tema claro/escuro
+    const toggleBtn = document.getElementById("toggleTheme");
+    toggleBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      document.body.classList.toggle("light");
+      toggleBtn.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
     });
   </script>
 </body>
